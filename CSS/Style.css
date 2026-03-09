@@ -1,0 +1,92 @@
+/* Estilos generales */
+body {
+    font-family: 'Times New Roman', Times, serif, sans-serif;
+    background-color: #ff0000;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(black, red);
+    color: rgb(255, 255, 255);
+    text-align: center;
+    padding: 2rem;
+    
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+/* Formulario de tareas */
+.task.form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.task.form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}
+
+.task.form button {
+    background-color: #6d0000;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px solid #000000;
+    cursor: pointer;
+}
+
+.task.form button:hover {
+    background-color: #ff8800cc;
+}
+
+/* Lista de tareas */
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-item {
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items:center;
+    border: 1px solid #000000;
+}
+
+/* Botón completar */
+.complete-btn {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000000;
+    border-radius: 5%;
+    background-color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+.task-item.completed .Complete-btn {
+    background-color: #a00000;
+    border: 2px solid #000000;
+    border-radius: 5%;
+    size: 50px;
+}
+
+.task-item.completed span {
+    text-decoration: line-through;
+    color: #000000;
+}
+
+
+
