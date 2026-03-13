@@ -1,59 +1,69 @@
-/* Estilos generales */
+:root {
+    --primary: #eeeeee;
+    --primary-hover: #09b900;
+    --bg: #bf0000;
+    --text: #000000;
+    --white: #000000;
+    --radius: 8px;
+    --spacing: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Times New Roman', Times, serif, sans-serif;
-    background-color: #ff0000;
     margin: 0;
-    padding: 0;
+    font-family: sans-serif;
+    background-color:var(--bg);
+    color:var(--text);
 }
 
-/* Header */
 .header {
-    background: linear-gradient(black, red);
-    color: rgb(255, 255, 255);
-    text-align: center;
+    background-color:rgb(0, 0, 0);
+    color: white;
     padding: 2rem;
-    
+    border-radius: 8px;
+    text-align: center;
 }
 
-/* Contenedor principal */
 .container {
     max-width: 600px;
-    margin: 2rem auto;
-    padding: 1rem;
+    margin: 40px auto;
+    padding: 0 var(--spacing);
 }
 
-/* Formulario de tareas */
-.task.form {
+.task-form {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
-.task.form input {
+.task-form input {
     flex: 1;
     padding: 10px;
-    border: 1px solid #000000;
-    border-radius: 5px;
+    border-radius: var(--radius);
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
 }
 
-.task.form button {
-    background-color: #6d0000;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    border: 1px solid #000000;
+.task-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+button {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 10px 14px;
+    border-radius: var(--radius);
     cursor: pointer;
+    transition: 0.3s ease;
 }
 
-.task.form button:hover {
-    background-color: #ff8800cc;
-}
-
-/* Lista de tareas */
-.task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+button:hover {
+    background: var(--primary-hover);
 }
 
 .task-item {
@@ -62,31 +72,61 @@ body {
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
-    align-items:center;
-    border: 1px solid #000000;
+    align-items: center;
+    border: 1px solid #ddd;
+    margin-top: 20px;
+    width: 570px;
 }
 
-/* Botón completar */
-.complete-btn {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #000000;
-    border-radius: 5%;
-    background-color: rgb(255, 255, 255);
-    cursor: pointer;
+.task-item span {
+    font-size: 0.95rem;
 }
 
-.task-item.completed .Complete-btn {
-    background-color: #a00000;
-    border: 2px solid #000000;
-    border-radius: 5%;
-    size: 50px;
-}
-
-.task-item.completed span {
+.completed span {
     text-decoration: line-through;
-    color: #000000;
+    opacity: 0.6;
 }
 
+.task-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
+.delete-btn {
+    background:rgb(255, 0, 0)
+}
+
+.delete-btn:hover {
+    background: #8f0000;
+}
+
+.task-stats {
+    display: flex;
+    justify-content: space-between;
+    background:rgb(255, 255, 255);
+    padding: 12px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    
+}
+
+.task-sort{
+   display: flex;
+   gap: 10px;
+   margin-bottom: 5px;
+}
+
+#completeAll {
+    background: var(--primary-hover);
+    color: var(--text);
+}
+
+.task-date {
+    font-size: 0.75rem;
+    color: #555;
+    margin-left: 8px;
+    align-self: center;
+}
 

@@ -1,40 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="CSS/Style.css">
 </head>
-<link rel="stylesheet" href="CSS/Style.css">
-
 <body>
-    
+
     <header class="header">
         <h1>Dashboard de Tareas</h1>
+        <img src="C:\Users\Enriq\OneDrive\Pictures\pngwing.com.png" alt="f1" height="8%" width="8%">
     </header>
-
     <main class="container">
-        <section class="task form">
-             <input id="taskInput" type="text" placeholder="Nueva Tarea">
-             <button id="addTaskBtn">Agregar</button>
+
+        <section class="task-form">
+            <input id="taskInput" type="text" placeholder="Nueva tarea">
+            <button id="addTaskBtn">Agregar</button>
         </section>
+
+        <!-- El Contador de tareas-->
+         <section class="task-stats">
+            <p>Total: <span id="totalTasks"> 0 </span></p>
+            <p>Completadas: <span id="completedTasks"> 0 </span> </p>
+            <p>Pendientes: <span id="pendingTasks"> 0 </span></p>
+            <p>Progreso: <span id="progress">0%</span> </p>
+         </section>
+
+         <section class="task-sort">
+            <button id="sortAZ">Ordenar de A -> Z</button>
+            <button id="sortZA">Ordenar de Z -> A</button>
+            <button id="completeAll">Marcar todas como completadas</button>
+         </section>
 
         <section id="taskList" class="task-list">
-            <div class="task-item">
-             <span> Estudiar CSS</span>
-             <input type="checkbox" class="Complete-btn">
-            </div>
-
-            <div class="task-item completed">
-                <span>Hacer Ejercicio</span>
-                <input type="checkbox" class="Complete-btn">
-            </div>
+            <!--<div class="task-item">
+                <div class="task-left">
+                    <input type="checkbox">
+                    <span>Estudiar Javascript</span>
+                    <span class="task-date">Creada: 01/01/2025</span>
+                </div>
+                <button class="delete-btn">Eliminar</button>
+            </div>-->
         </section>
-    </main>
-    <script src="JS/script.js"></script>
 
+    </main>
+    <!-- NUEVO EN ESTA CLASE -->
+    <!-- Conexión con el archivo JavaScript -->
+    <script src="JS/script.js"></script>
 
 </body>
 </html>
-
-
