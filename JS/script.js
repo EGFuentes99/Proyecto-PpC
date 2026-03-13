@@ -27,6 +27,22 @@ const sortAZ = document.getElementById("sortAZ");
 const sortZA = document.getElementById("sortZA");
 const completeAll = document.getElementById("completeAll");
 
+//Modelo de datos
+let tasks = [];
+
+//Guardar en LocalStorage
+function saveTasks() {
+   localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasks() {
+   const saved = localStorage.getItem("tasks");
+
+   if(saved) {
+      tasks =JSON.parse(saved);
+   }
+}
+
 /* ===============================
    2. ESCUCHAR EVENTO DEL BOTÓN
    =============================== */
@@ -77,7 +93,9 @@ completeAll.addEventListener("click", function() {
          task.classList.add("completed");
       }
    });
-   updateStats();
+
+   saveTasks();
+   renderTasks();
 });
 
 /*
@@ -115,19 +133,12 @@ function updateStats() {
    progressTasks.textContent = porcentaje + "%"
 }
 
-function createTask() {
-   //Guardamos el texto que escribio el usuario
-    const taskText = input.value.trim();
-    console.log(taskText);
+function renderTasks() {
 
-    // Validacion de longitud mínima
-    if (taskText === "" ) return;
-    if (taskText.length < 5) {
-        alert("La tarea debe tener al menos 5 caracteres.");
-        return;
-    }
+   taskList.innerHTML = "";
 
-    //Crear elemento de tarea
+   tasks.forEach( function(task, index) {
+          //Crear elemento de tarea
     const taskItem = document.createElement("div");
     taskItem.classList.add("task-item");
 
@@ -136,30 +147,39 @@ function createTask() {
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
+    checkbox.checked = task.completed;
 
     const span = document.createElement("span");
-    span.textContent = taskText;
+    span.textContent = task.text;
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Eliminar";
     deleteButton.classList.add("delete-btn");
 
+    if (task.completed) {
+      taskItem.classList.add("completed");
+    }
+
     deleteButton.addEventListener("click", function() {
       if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-        taskItem.remove();
-        updateStats();
+        tasks.splice(index, 1);
+
+        saveTasks();
+        renderTasks();
       }
     });
 
     checkbox.addEventListener("change", function() {
-      taskItem.classList.toggle("completed")
+      tasks[index].completed = checkbox.checked;
 
-      if(checkbox.checked) {
-         taskList.appendChild(taskItem); 
+      if (checkbox.checked) {
+        taskItem.classList.add("completed");
       } else {
-         taskList.prepend(taskItem);
+        taskItem.classList.remove("completed");
       }
-      updateStats();
+
+      saveTasks();
+      renderTasks();
     })
 
     //Estructura HTML de cada tarea
@@ -182,9 +202,37 @@ function createTask() {
 
     //Agregar la tarea al Dashboard
     taskList.appendChild(taskItem)
+   });
 
+   updateStats();
+
+}
+
+function createTask() {
+   //Guardamos el texto que escribio el usuario
+    const taskText = input.value.trim();
+    console.log(taskText);
+
+    // Validacion de longitud mínima
+    if (taskText === "" ) return;
+    if (taskText.length < 5) {
+        alert("La tarea debe tener al menos 5 caracteres.");
+        return;
+    }
+
+    const newTask = {
+      text: taskText,
+      completed: false
+    };
+
+    tasks.push(newTask);
     //Limpiar input
     input.value = "";
 
-    updateStats();
+    saveTasks();
+    renderTasks();
 }
+
+//Inicializacion
+loadTasks();
+renderTasks();
