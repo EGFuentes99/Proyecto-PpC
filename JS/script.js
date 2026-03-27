@@ -157,12 +157,7 @@ function renderTasks() {
     }
 
     deleteButton.addEventListener("click", function() {
-      if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-        tasks.splice(index, 1);
-
-        saveTasks();
-        renderTasks();
-      }
+      deleteTask(index);
     });
 
     checkbox.addEventListener("change", function() {
@@ -206,19 +201,19 @@ function renderTasks() {
 
 function toggleTask(index) {
    tasks[index].completed = !tasks[index].completed;
+   saveTasks();
+   renderTasks();
 }
 
-function createTask() {
-   //Guardamos el texto que escribio el usuario
-    const taskText = input.value.trim();
-    console.log(taskText);
+function deleteTask(index) {
+   tasks.splice(index, 1);
+   saveTasks();
+   renderTasks();
+}
 
-    // Validacion de longitud mínima
+function addTask(taskText) {
+  //Guardamos el texto que escribio el usuario
     if (taskText === "" ) return;
-    if (taskText.length < 4) {
-        alert("La tarea debe tener al menos 4 caracteres.");
-        return;
-    }
 
     const newTask = {
       text: taskText,
@@ -226,11 +221,14 @@ function createTask() {
     };
 
     tasks.push(newTask);
-    //Limpiar input
-    input.value = "";
 
     saveTasks();
     renderTasks();
+}
+
+function createTask() {
+ addTask(input.value);
+ input.value = "";
 }
 
 //Inicializacion
