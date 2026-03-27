@@ -85,13 +85,8 @@ sortZA.addEventListener("click", function() {
 
 // marcar todas como completadas
 completeAll.addEventListener("click", function() {
-   const tasks = document.querySelectorAll(".task-item");
    tasks.forEach(function(task) {
-      const checkbox = task.querySelector("input[type=checkbox]");
-      if (!checkbox.checked) {
-         checkbox.checked = true;
-         task.classList.add("completed");
-      }
+      task.completed = true;
    });
 
    saveTasks();
@@ -114,23 +109,24 @@ input.addEventListener("keypress", function(tecla) {
 });
 
 function updateStats() {
-   const tasks = document.querySelectorAll(".task-item");
-   const completed = document.querySelectorAll(".task-item.completed");
+   const stats = getStats();
 
+   totalTasks.textContent = stats.total;
+   completedTasks.textContent = stats.done;
+   pendingTasks.textContent = stats.pending;
+   progressTasks.textContent = stats.percentage + "%";
+}
+
+function getStats() {
    const total = tasks.length;
-   const done = completed.length;
+   const done = tasks.filter(tarea => tarea.completed).length;
 
-   totalTasks.textContent = total;
-   completedTasks.textContent = done;
-   pendingTasks.textContent = total - done;
-
-   let porcentaje = 0;
-   if(total > 0) {
-      const resultado = (done / total) * 100
-      porcentaje = Math.round(resultado);
+   return{
+      total,
+      done,
+      pending: total - done,
+      percentage: total > 0 ? Math.round( (done / total) * 100 ) : 0
    }
-
-   progressTasks.textContent = porcentaje + "%"
 }
 
 function renderTasks() {
@@ -186,11 +182,11 @@ function renderTasks() {
     taskLeft.appendChild(checkbox);
     taskLeft.appendChild(span);
 
-    // añadir fecha de creación usando Date()
+    //Añadir fecha de creación usando Date()
     const dateSpan = document.createElement("span");
     dateSpan.classList.add("task-date");
     const now = new Date();
-    // usar solo fecha local, sin hora
+    //Usar solo fecha local, sin hora
     dateSpan.textContent = "Creada: " + now.toLocaleDateString();
     taskLeft.appendChild(dateSpan);
 
@@ -208,6 +204,10 @@ function renderTasks() {
 
 }
 
+function toggleTask(index) {
+   tasks[index].completed = !tasks[index].completed;
+}
+
 function createTask() {
    //Guardamos el texto que escribio el usuario
     const taskText = input.value.trim();
@@ -215,8 +215,8 @@ function createTask() {
 
     // Validacion de longitud mínima
     if (taskText === "" ) return;
-    if (taskText.length < 5) {
-        alert("La tarea debe tener al menos 5 caracteres.");
+    if (taskText.length < 4) {
+        alert("La tarea debe tener al menos 4 caracteres.");
         return;
     }
 
@@ -236,3 +236,4 @@ function createTask() {
 //Inicializacion
 loadTasks();
 renderTasks();
+
