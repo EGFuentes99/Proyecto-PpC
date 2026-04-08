@@ -49,38 +49,15 @@ function loadTasks() {
 //Boton AZ
 sortAZ.addEventListener("click", function() {
    console.log("Boton AZ pressed")
-   const tasks = Array.from( document.querySelectorAll(".task-item") );
-
-   tasks.sort(function(a,b) {
-      const textA = a.querySelector("span").textContent.toLowerCase();
-      const textB = b.querySelector("span").textContent.toLowerCase();
-      
-      return textA.localeCompare(textB);
-   });
-
-   taskList.innerHTML = "";
-
-   tasks.forEach(function(task) {
-      taskList.appendChild(task);
-   });
-
+   tasks.sort((a, b) => a.text.toLowerCase().localeCompare(b.text.toLowerCase()));
+   saveTasks();
+   renderTasks();
 });
 
 sortZA.addEventListener("click", function() {
-   const tasks = Array.from( document.querySelectorAll(".task-item"));
-
-   tasks.sort(function(primerPalabra, segundaPalabra) {
-      const textA = primerPalabra.querySelector("span").textContent.toLowerCase();
-      const textB = segundaPalabra.querySelector("span").textContent.toLowerCase();
-
-      return textB.localeCompare(textA);
-   });
-
-   taskList.innerHTML = "";
-
-   tasks.forEach(function(task){
-      taskList.appendChild(task);
-   });
+   tasks.sort((a, b) => b.text.toLowerCase().localeCompare(a.text.toLowerCase()));
+   saveTasks();
+   renderTasks();
 });
 
 // marcar todas como completadas
@@ -181,6 +158,7 @@ function renderTasks() {
     const dateSpan = document.createElement("span");
     dateSpan.classList.add("task-date");
     const now = new Date();
+    
     //Usar solo fecha local, sin hora
     dateSpan.textContent = "Creada: " + now.toLocaleDateString();
     taskLeft.appendChild(dateSpan);
