@@ -27,24 +27,34 @@ const sortAZ = document.getElementById("sortAZ");
 const sortZA = document.getElementById("sortZA");
 const completeAll = document.getElementById("completeAll");
 
-//Modelo de datos
+// Modelo de datos
 let tasks = [];
 
-//Guardar en LocalStorage
+/* ===============================
+   2. ALMACENAMIENTO EN LOCALSTORAGE
+   =============================== */
+
+// Guardar tareas en el navegador
 function saveTasks() {
    localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+// Cargar tareas guardadas desde el navegador
 function loadTasks() {
    const saved = localStorage.getItem("tasks");
 
-   if(saved) {
-      tasks =JSON.parse(saved);
+   if (saved) {
+      try {
+         tasks = JSON.parse(saved);
+      } catch (error) {
+         console.error("Error al cargar tareas desde LocalStorage:", error);
+         tasks = [];
+      }
    }
 }
 
 /* ===============================
-   2. ESCUCHAR EVENTO DEL BOTÓN
+   3. EVENTOS DE LOS BOTONES
    =============================== */
 //Boton AZ
 sortAZ.addEventListener("click", function() {
@@ -60,15 +70,28 @@ sortZA.addEventListener("click", function() {
    renderTasks();
 });
 
-// marcar todas como completadas
+/* ===============================
+   4. ACCIONES DE TAREAS EN MASA
+   =============================== */
+
+// Marcar todas como completadas
 completeAll.addEventListener("click", function() {
-   tasks.forEach(function(task) {
-      task.completed = true;
+   const checkboxes = document.querySelectorAll("#taskList input[type='checkbox']");
+
+   checkboxes.forEach(function(checkbox, index) {
+      checkbox.checked = true;
+      if (tasks[index]) {
+         tasks[index].completed = true;
+      }
    });
 
    saveTasks();
    renderTasks();
 });
+
+/* ===============================
+   5. FORMULARIO Y TECLAS
+   =============================== */
 
 /*
 addEventListener permite ejecutar código
@@ -80,10 +103,14 @@ button.addEventListener("click", function() {
 });
 
 input.addEventListener("keypress", function(tecla) {
-   if(tecla.key === "Enter") {
+   if (tecla.key === "Enter") {
       createTask();
    }
 });
+
+/* ===============================
+   6. ESTADÍSTICAS DE TAREAS
+   =============================== */
 
 function updateStats() {
    const stats = getStats();
@@ -98,19 +125,23 @@ function getStats() {
    const total = tasks.length;
    const done = tasks.filter(tarea => tarea.completed).length;
 
-   return{
+   return {
       total,
       done,
       pending: total - done,
-      percentage: total > 0 ? Math.round( (done / total) * 100 ) : 0
+      percentage: total > 0 ? Math.round((done / total) * 100) : 0
    }
 }
+
+/* ===============================
+   7. RENDERIZADO DE LA LISTA
+   =============================== */
 
 function renderTasks() {
 
    taskList.innerHTML = "";
 
-   tasks.forEach( function(task, index) {
+   tasks.forEach(function(task, index) {
           //Crear elemento de tarea
     const taskItem = document.createElement("div");
     taskItem.classList.add("task-item");
@@ -134,7 +165,10 @@ function renderTasks() {
     }
 
     deleteButton.addEventListener("click", function() {
-      deleteTask(index);
+      const confirmed = confirm("¿Seguro que desea eliminar la tarea?");
+      if (confirmed) {
+         deleteTask(index);
+      }
     });
 
     checkbox.addEventListener("change", function() {
@@ -150,17 +184,17 @@ function renderTasks() {
       renderTasks();
     })
 
-    //Estructura HTML de cada tarea
+    // Estructura HTML de cada tarea
     taskLeft.appendChild(checkbox);
     taskLeft.appendChild(span);
 
-    //Añadir fecha de creación usando Date()
+    // Añadir fecha de creación usando el valor guardado en la tarea
     const dateSpan = document.createElement("span");
     dateSpan.classList.add("task-date");
-    const now = new Date();
-    
-    //Usar solo fecha local, sin hora
-    dateSpan.textContent = "Creada: " + now.toLocaleDateString();
+    const createdDate = task.createdAt ? new Date(task.createdAt) : new Date();
+
+    // Usar solo fecha local, sin hora
+    dateSpan.textContent = "Creada: " + createdDate.toLocaleDateString();
     taskLeft.appendChild(dateSpan);
 
     taskItem.appendChild(taskLeft);
@@ -177,6 +211,10 @@ function renderTasks() {
 
 }
 
+/* ===============================
+   8. FUNCIONES PARA GESTIONAR TAREAS
+   =============================== */
+
 function toggleTask(index) {
    tasks[index].completed = !tasks[index].completed;
    saveTasks();
@@ -190,26 +228,92 @@ function deleteTask(index) {
 }
 
 function addTask(taskText) {
-  //Guardamos el texto que escribio el usuario
-    if (taskText === "" ) return;
+   const trimmedText = taskText.trim();
 
-    const newTask = {
-      text: taskText,
-      completed: false
-    };
+   // Guardamos el texto que escribio el usuario
+   if (trimmedText === "") return;
 
-    tasks.push(newTask);
+   if (trimmedText.length < 5) {
+      alert("La tarea debe tener al menos 5 caracteres.");
+      return;
+   }
 
-    saveTasks();
-    renderTasks();
+   const newTask = {
+      text: trimmedText,
+      completed: false,
+      createdAt: new Date().toISOString(),
+      category: "General",
+      priority: 1
+   };
+
+   tasks.push(newTask);
+
+   saveTasks();
+   renderTasks();
+}
+
+/* ===============================
+   9. RETOS DE ARRAY: FILTER, FOR EACH, MAP
+   =============================== */
+
+function filterHealthPending() {
+   return tasks.filter(task => task.category === "Salud" && task.completed === false);
+}
+
+function filterOddPriority() {
+   return tasks.filter(task => Number(task.priority) % 2 === 1);
+}
+
+function filterAdvanced() {
+   return tasks.filter(task =>
+      task.completed === false &&
+      Number(task.priority) >= 3 &&
+      task.category !== "Personal"
+   );
+}
+
+function findHighestPriorityTask() {
+   if (tasks.length === 0) return null;
+   return tasks.reduce((best, task) => {
+      const priority = Number(task.priority) || 0;
+      return !best || priority > Number(best.priority) ? task : best;
+   }, null);
+}
+
+function getPriorityLevel(priority) {
+   const value = Number(priority);
+   if (value >= 4) return "High";
+   if (value === 3) return "Medium";
+   return "Low";
+}
+
+function mapTaskSummaries() {
+   return tasks.map(task => ({
+      title: task.text,
+      status: task.completed ? "Completed" : "Pending",
+      level: getPriorityLevel(task.priority)
+   }));
+}
+
+function normalizeTasksText() {
+   tasks = tasks.map(task => ({
+      ...task,
+      text: task.text.toLowerCase(),
+      category: task.category ? task.category.toLowerCase() : task.category
+   }));
+   saveTasks();
+   renderTasks();
 }
 
 function createTask() {
- addTask(input.value);
- input.value = "";
+   addTask(input.value);
+   input.value = "";
 }
 
-//Inicializacion
+/* ===============================
+   10. INICIALIZACIÓN
+   =============================== */
+
 loadTasks();
 renderTasks();
 
