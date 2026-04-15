@@ -20,13 +20,14 @@
 
         <!-- El Contador de tareas-->
          <section class="task-stats">
-            <p>Total: <span id="totalTasks"> 0 </span></p>
-            <p>Completadas: <span id="completedTasks"> 0 </span> </p>
-            <p>Pendientes: <span id="pendingTasks"> 0 </span></p>
-            <p>Progreso: <span id="progress">0%</span> </p>
+            <p>🌐 Total: <span id="totalTasks"> 0 </span></p>
+            <p>🤟 Completadas: <span id="completedTasks"> 0 </span> </p>
+            <p>⌛ Pendientes: <span id="pendingTasks"> 0 </span></p>
+            <p>📈 Progreso: <span id="progress">0%</span> </p>
          </section>
 
          <section class="task-sort">
+            <div class="features-card" onclick=""></div>
             <button id="sortAZ">Ordenar de A -> Z</button>
             <button id="sortZA">Ordenar de Z -> A</button>
             <button id="completeAll">Marcar todas completadas</button>
@@ -44,9 +45,13 @@
         </section>
 
     </main>
+    <!-- Audio de fondo -->
+    <!-- Cambié ruta absoluta a relativa y quité 'muted' para que suene -->
+    <audio id="backgroundAudio" src="audio/New 2025 F1 Opening Titles.MP3" autoplay loop></audio>
     <!-- NUEVO EN ESTA CLASE -->
     <!-- Conexión con el archivo JavaScript -->
     <script src="JS/script.js"></script>
+
 
 </body>
 </html>

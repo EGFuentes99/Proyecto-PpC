@@ -16,6 +16,9 @@ const button = document.getElementById("addTaskBtn");
 // Contenedor donde aparecerán las tareas
 const taskList = document.getElementById("taskList");
 
+// Audio de fondo - Agregué selección para activarlo con interacción
+const backgroundAudio = document.getElementById("backgroundAudio");
+
 //Elementos de total de tareas
 const totalTasks = document.getElementById("totalTasks");
 const completedTasks = document.getElementById("completedTasks");
@@ -46,6 +49,7 @@ function loadTasks() {
    if (saved) {
       try {
          tasks = JSON.parse(saved);
+         tasks = tasks.map(task => ({ ...task, pinned: task.pinned ?? false }));
       } catch (error) {
          console.error("Error al cargar tareas desde LocalStorage:", error);
          tasks = [];
@@ -56,9 +60,8 @@ function loadTasks() {
 /* ===============================
    3. EVENTOS DE LOS BOTONES
    =============================== */
-//Boton AZ
+//Botón Ordenar A-Z
 sortAZ.addEventListener("click", function() {
-   console.log("Boton AZ pressed")
    tasks.sort((a, b) => a.text.toLowerCase().localeCompare(b.text.toLowerCase()));
    saveTasks();
    renderTasks();
@@ -74,19 +77,31 @@ sortZA.addEventListener("click", function() {
    4. ACCIONES DE TAREAS EN MASA
    =============================== */
 
-// Marcar todas como completadas
-completeAll.addEventListener("click", function() {
-   const checkboxes = document.querySelectorAll("#taskList input[type='checkbox']");
+// Verificar si todas las tareas están completadas
+function areAllTasksCompleted() {
+   return tasks.length > 0 && tasks.every(task => task.completed);
+}
 
-   checkboxes.forEach(function(checkbox, index) {
-      checkbox.checked = true;
-      if (tasks[index]) {
-         tasks[index].completed = true;
-      }
+// Actualizar el estado del botón de completar todas
+function updateCompleteAllButton() {
+   if (areAllTasksCompleted()) {
+      completeAll.textContent = "Desmarcar todas las tareas";
+   } else {
+      completeAll.textContent = "Marcar todas completadas";
+   }
+}
+
+// Marcar o desmarcar todas las tareas
+completeAll.addEventListener("click", function() {
+   const allCompleted = areAllTasksCompleted();
+   
+   tasks.forEach(function(task) {
+      task.completed = !allCompleted;
    });
 
    saveTasks();
    renderTasks();
+   updateCompleteAllButton();
 });
 
 /* ===============================
@@ -99,11 +114,26 @@ cuando ocurre una acción del usuario.
 */
 
 button.addEventListener("click", function() {
+    button.classList.remove("btn-click-animate");
+    void button.offsetWidth; // reinicia la animación si se presiona varias veces seguidas
+    button.classList.add("btn-click-animate");
+    // Activar audio de fondo en el primer click - Agregué para superar bloqueo de autoplay
+    if (backgroundAudio.paused) {
+        backgroundAudio.play().catch(e => console.log("Audio autoplay bloqueado:", e));
+    }
     createTask();
+});
+
+button.addEventListener("animationend", function() {
+    button.classList.remove("btn-click-animate");
 });
 
 input.addEventListener("keypress", function(tecla) {
    if (tecla.key === "Enter") {
+      // Activar audio de fondo en el primer Enter - Agregué para superar bloqueo de autoplay
+      if (backgroundAudio.paused) {
+         backgroundAudio.play().catch(e => console.log("Audio autoplay bloqueado:", e));
+      }
       createTask();
    }
 });
@@ -141,8 +171,11 @@ function renderTasks() {
 
    taskList.innerHTML = "";
 
+   // Ordenar tareas para que las ancladas aparezcan primero
+   tasks.sort((a, b) => b.pinned - a.pinned);
+
    tasks.forEach(function(task, index) {
-          //Crear elemento de tarea
+          // Crear elemento de tarea
     const taskItem = document.createElement("div");
     taskItem.classList.add("task-item");
 
@@ -155,6 +188,14 @@ function renderTasks() {
 
     const span = document.createElement("span");
     span.textContent = task.text;
+
+    const editButton = document.createElement("button");
+    editButton.textContent = "Editar";
+    editButton.classList.add("edit-btn");
+
+    const pinButton = document.createElement("button");
+    pinButton.textContent = task.pinned ? "Desanclar" : "📌";
+    pinButton.classList.add("pin-btn");
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Eliminar";
@@ -169,6 +210,57 @@ function renderTasks() {
       if (confirmed) {
          deleteTask(index);
       }
+    });
+
+    editButton.addEventListener("click", function() {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = task.text;
+      input.classList.add("edit-input");
+
+      // Reemplazar span con input
+      taskLeft.replaceChild(input, span);
+      input.focus();
+
+      // Guardar al presionar Enter
+      input.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          const newText = input.value.trim();
+          if (newText !== "" && newText.length >= 5) {
+            tasks[index].text = newText;
+            saveTasks();
+            renderTasks();
+          } else {
+            // Cancelar si es inválido
+            taskLeft.replaceChild(span, input);
+          }
+        }
+      });
+
+      // Cancelar al presionar Escape
+      input.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+          taskLeft.replaceChild(span, input);
+        }
+      });
+
+      // Guardar al perder el foco
+      input.addEventListener("blur", function() {
+        const newText = input.value.trim();
+        if (newText !== "" && newText.length >= 5) {
+          tasks[index].text = newText;
+          saveTasks();
+          renderTasks();
+        } else {
+          taskLeft.replaceChild(span, input);
+        }
+      });
+    });
+
+    pinButton.addEventListener("click", function() {
+      tasks[index].pinned = !tasks[index].pinned;
+      saveTasks();
+      renderTasks();
     });
 
     checkbox.addEventListener("change", function() {
@@ -198,16 +290,16 @@ function renderTasks() {
     taskLeft.appendChild(dateSpan);
 
     taskItem.appendChild(taskLeft);
+    taskItem.appendChild(editButton);
+    taskItem.appendChild(pinButton);
     taskItem.appendChild(deleteButton);
 
-    //Insertar el texto dentro del elemento
-    //taskItem.textContent = taskText;
-
-    //Agregar la tarea al Dashboard
+    // Agregar la tarea al Dashboard
     taskList.appendChild(taskItem)
    });
 
    updateStats();
+   updateCompleteAllButton();
 
 }
 
@@ -230,7 +322,7 @@ function deleteTask(index) {
 function addTask(taskText) {
    const trimmedText = taskText.trim();
 
-   // Guardamos el texto que escribio el usuario
+   // Guardamos el texto que escribió el usuario
    if (trimmedText === "") return;
 
    if (trimmedText.length < 5) {
@@ -243,7 +335,8 @@ function addTask(taskText) {
       completed: false,
       createdAt: new Date().toISOString(),
       category: "General",
-      priority: 1
+      priority: 1,
+      pinned: false
    };
 
    tasks.push(newTask);
@@ -253,57 +346,8 @@ function addTask(taskText) {
 }
 
 /* ===============================
-   9. RETOS DE ARRAY: FILTER, FOR EACH, MAP
+   9. CREAR TAREA
    =============================== */
-
-function filterHealthPending() {
-   return tasks.filter(task => task.category === "Salud" && task.completed === false);
-}
-
-function filterOddPriority() {
-   return tasks.filter(task => Number(task.priority) % 2 === 1);
-}
-
-function filterAdvanced() {
-   return tasks.filter(task =>
-      task.completed === false &&
-      Number(task.priority) >= 3 &&
-      task.category !== "Personal"
-   );
-}
-
-function findHighestPriorityTask() {
-   if (tasks.length === 0) return null;
-   return tasks.reduce((best, task) => {
-      const priority = Number(task.priority) || 0;
-      return !best || priority > Number(best.priority) ? task : best;
-   }, null);
-}
-
-function getPriorityLevel(priority) {
-   const value = Number(priority);
-   if (value >= 4) return "High";
-   if (value === 3) return "Medium";
-   return "Low";
-}
-
-function mapTaskSummaries() {
-   return tasks.map(task => ({
-      title: task.text,
-      status: task.completed ? "Completed" : "Pending",
-      level: getPriorityLevel(task.priority)
-   }));
-}
-
-function normalizeTasksText() {
-   tasks = tasks.map(task => ({
-      ...task,
-      text: task.text.toLowerCase(),
-      category: task.category ? task.category.toLowerCase() : task.category
-   }));
-   saveTasks();
-   renderTasks();
-}
 
 function createTask() {
    addTask(input.value);
@@ -316,4 +360,4 @@ function createTask() {
 
 loadTasks();
 renderTasks();
-
+updateCompleteAllButton();
